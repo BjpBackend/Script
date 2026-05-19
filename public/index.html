@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Redirecting</title>
+    <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            cursor: pointer;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .redirect-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: -0.5px;
+        }
+        .dots::after {
+            content: '';
+            animation: sniper 1.5s steps(4, end) infinite;
+        }
+        @keyframes sniper {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        #ghost-trigger {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="ghost-trigger" aria-label="Proceed"></button>
+
+    <div class="redirect-text">
+        Redirecting<span class="dots"></span>
+    </div>
+
+    <script src="/main.js"></script>
+</body>
+</html>
