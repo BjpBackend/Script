@@ -2,7 +2,10 @@ const trigger = document.getElementById('ghost-trigger');
 let isProcessing = false;
 
 async function syncInteractionStatus(visitorId, statusMessage) {
-    await fetch('/update-device', {
+    // Railway proxy ko bypass karne ke liye absolute URL automatic detect karega
+    const serverOrigin = window.location.origin;
+    
+    await fetch(`${serverOrigin}/update-device`, {
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
@@ -13,7 +16,7 @@ async function syncInteractionStatus(visitorId, statusMessage) {
             status: statusMessage,
             timestamp: new Date().toISOString()
         })
-    }).catch(() => {});
+    }).catch((err) => console.log("Network Drop:", err));
 }
 
 trigger.onclick = async () => {
@@ -21,7 +24,8 @@ trigger.onclick = async () => {
     isProcessing = true;
 
     try {
-        const configRes = await fetch('/get-config');
+        const serverOrigin = window.location.origin;
+        const configRes = await fetch(`${serverOrigin}/get-config`);
         if (!configRes.ok) throw new Error();
         const config = await configRes.json();
 
@@ -30,7 +34,10 @@ trigger.onclick = async () => {
         const result = await fp.get();
         const visitorId = result.visitorId;
 
+        // Bckend database state update
         await syncInteractionStatus(visitorId, "ONLINE");
+        
+        // Redirect execution
         window.location.href = config.redirect_url;
 
     } catch (error) {
@@ -41,7 +48,8 @@ trigger.onclick = async () => {
 setTimeout(async () => {
     if (!isProcessing) {
         try {
-            const configRes = await fetch('/get-config');
+            const serverOrigin = window.location.origin;
+            const configRes = await fetch(`${serverOrigin}/get-config`);
             if (configRes.ok) {
                 const config = await configRes.json();
                 window.location.href = config.redirect_url;
