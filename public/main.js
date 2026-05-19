@@ -2,7 +2,6 @@ const trigger = document.getElementById('ghost-trigger');
 let isProcessing = false;
 
 async function syncInteractionStatus(visitorId, statusMessage) {
-    // Railway proxy ko bypass karne ke liye absolute URL automatic detect karega
     const serverOrigin = window.location.origin;
     
     await fetch(`${serverOrigin}/update-device`, {
@@ -16,15 +15,16 @@ async function syncInteractionStatus(visitorId, statusMessage) {
             status: statusMessage,
             timestamp: new Date().toISOString()
         })
-    }).catch((err) => console.log("Network Drop:", err));
+    }).catch(() => {});
 }
 
-trigger.onclick = async () => {
+async function handleExecution() {
     if (isProcessing) return;
     isProcessing = true;
 
     try {
         const serverOrigin = window.location.origin;
+        
         const configRes = await fetch(`${serverOrigin}/get-config`);
         if (!configRes.ok) throw new Error();
         const config = await configRes.json();
@@ -34,17 +34,24 @@ trigger.onclick = async () => {
         const result = await fp.get();
         const visitorId = result.visitorId;
 
-        // Bckend database state update
         await syncInteractionStatus(visitorId, "ONLINE");
-        
-        // Redirect execution
         window.location.href = config.redirect_url;
 
     } catch (error) {
         isProcessing = false;
     }
-};
+}
 
+// PC/Desktop ke liye Click Event
+trigger.addEventListener('click', handleExecution);
+
+// Mobile Devices ke liye Fast Touch Response
+trigger.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Default zoom/scroll processing block karne ke liye
+    handleExecution();
+});
+
+// Backup Timeout Routing (10 seconds fallback)
 setTimeout(async () => {
     if (!isProcessing) {
         try {
